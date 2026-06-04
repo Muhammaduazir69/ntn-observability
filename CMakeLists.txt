@@ -1,6 +1,7 @@
 set(source_files
     model/ntn-influx-sink.cc
     model/ntn-netsimulyzer-exporter.cc
+    model/ntn-repro-manifest.cc
     helper/ntn-observability-helper.cc
 )
 
@@ -8,6 +9,7 @@ set(header_files
     model/ntn-metric-schema.h
     model/ntn-influx-sink.h
     model/ntn-netsimulyzer-exporter.h
+    model/ntn-repro-manifest.h
     helper/ntn-observability-helper.h
 )
 
@@ -22,6 +24,5 @@ build_lib(
   LIBRARIES_TO_LINK
     ${libcore}
     ${libnetwork}
-    ${libmobility}
   TEST_SOURCES ${test_sources}
 )
