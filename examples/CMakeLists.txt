@@ -5,12 +5,17 @@ build_lib_example(
     ${libntn-observability}
     ${libntn-rrc}
     ${libntn-traffic}
+    ${libntn-cho}
+    ${libntn-constellation}
     ${libcore}
-    ${libmobility}
     ${libnetwork}
+    ${libmobility}
+    ${libspectrum}
+    ${libpropagation}
     ${libinternet}
     ${libapplications}
-    ${libpoint-to-point}
+    ${libmmwave}
+    ${liblte}
 )
 
 # Real LEO downlink packet sim with InfluxDB KPI export (NtnInfluxSink).
@@ -19,11 +24,16 @@ build_lib_example(
   SOURCE_FILES ntn-observability-traffic.cc
   LIBRARIES_TO_LINK
     ${libntn-observability}
+    ${libntn-cho}
+    ${libntn-constellation}
+    ${libntn-traffic}
     ${libcore}
     ${libnetwork}
     ${libmobility}
-    ${libpoint-to-point}
+    ${libspectrum}
+    ${libpropagation}
     ${libinternet}
     ${libapplications}
-    ${libflow-monitor}
+    ${libmmwave}
+    ${liblte}
 )
