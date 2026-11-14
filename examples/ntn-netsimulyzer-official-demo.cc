@@ -54,6 +54,12 @@ main(int argc, char* argv[])
     double altitudeKm = 550.0;
     std::string radio = "nr"; // radio backend: "nr" (5G-LENA FR1) | "mmwave" (FR2)
     std::string out = "ntn-official.json";
+    // Every other example in the toolkit takes --outputDir and writes its
+    // artifacts there. This one took only --out, defaulted to a bare relative
+    // filename, and therefore wrote into whatever directory it was launched
+    // from: running it from the repo root left ntn-official.json and
+    // ntn-official.json.scene.json sitting in the source tree.
+    std::string outputDir = ".";
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("sats", "Satellites to render", sats);
@@ -62,7 +68,15 @@ main(int argc, char* argv[])
     cmd.AddValue("altitude", "Constellation altitude (km)", altitudeKm);
     cmd.AddValue("radio", "Radio backend: nr (FR1) or mmwave", radio);
     cmd.AddValue("out", "Official NetSimulyzer JSON output path", out);
+    cmd.AddValue("outputDir", "Directory to write the JSON into", outputDir);
     cmd.Parse(argc, argv);
+
+    // Only join when --out is a bare name, so an absolute or explicitly
+    // relative --out still wins and existing invocations keep working.
+    if (!outputDir.empty() && outputDir != "." && out.find('/') == std::string::npos)
+    {
+        out = outputDir + (outputDir.back() == '/' ? "" : "/") + out;
+    }
 
     // ---- REAL SGP4 satellites (ECEF) ----
     ns3::ntncon::WalkerConfig wcfg;
@@ -301,8 +315,17 @@ main(int argc, char* argv[])
 
     Simulator::Stop(Seconds(duration));
     Simulator::Run();
+
     scene->Stop();
     rs.Collect();
+    // Ordering matters, and this was wrong until 2026-09-01: the report was
+    // written BEFORE Collect(), which is what harvests the PHY traces, so
+    // phy_rx_tb and rx_throughput_mbps came out zero while the application
+    // counters showed traffic flowing. A health record claiming the radio
+    // carried nothing, in a run where it did, is worse than no record at all.
+    rs.SetOutputDir("./ntn-netsimulyzer-official-demo-output/");
+    rs.WriteHealthReport();
+
 
     // ---- Reproducibility manifest (roadmap T9): exercise BOTH WriteJson + LoadJson ----
     const std::string manifestPath = out + ".manifest.json";
